@@ -5,6 +5,7 @@ aiosqlite
 pydantic-settings
 asyncpg
 alembic
+aiofiles
 
 python-multipart
 python-jose[cryptography]

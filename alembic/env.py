@@ -14,6 +14,7 @@ from app.core.config import settings
 import app.models.user        # noqa: F401
 import app.models.gallery     # noqa: F401
 import app.models.membership  # noqa: F401
+import app.models.image       # noqa: F401
 
 config = context.config
 

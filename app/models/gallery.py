@@ -5,9 +5,11 @@ from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, TimestampMixin
+from app.models.image import Image
 
 if TYPE_CHECKING:
     from app.models.membership import Membership
+    from app.models.image import Image
 
 
 class Gallery(Base, TimestampMixin):
@@ -21,4 +23,8 @@ class Gallery(Base, TimestampMixin):
 
     memberships: Mapped[list["Membership"]] = relationship(
         "Membership", back_populates="gallery", cascade="all, delete-orphan"
+    )
+    
+    images: Mapped[list["Image"]] = relationship(
+        "Image", back_populates="gallery", cascade="all, delete-orphan"
     )
