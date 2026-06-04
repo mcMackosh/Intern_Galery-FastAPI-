@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix='/profile', tags=['profile'])
 
-@router.post("/me", response_model=UserResponce)
+@router.post("/", response_model=UserResponce)
 def get_me(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:

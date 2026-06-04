@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str
     REDIS_HOST: str
     REDIS_PORT: int
+    JWT_REFRESH_SECRET: str
 
     JWT_SECRET: str
     COOKIES_SECRET: str
