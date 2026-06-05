@@ -6,6 +6,7 @@ pydantic-settings
 asyncpg
 alembic
 aiofiles
+redis
 
 python-multipart
 python-jose[cryptography]

@@ -1,19 +1,34 @@
+import math
+
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.membership import UserRole
-from app.repositories.gallery import gallery_repository
-from app.repositories.membership import membership_repository
+from app.repositories.gallery_rep import gallery_repository
+from app.repositories.membership_rep import membership_repository
 from app.schemas.gallery_schema import CreateGalleryDto, GetGalleriesQueryDto, UpdateGalleryDto
 
 
 class GalleryService:
 
-    async def get_gallery_by_id(self, db: AsyncSession, gallery_id: str):
+    async def get_gallery_by_id(
+        self, db: AsyncSession, gallery_id: str, user_id: str | None = None
+    ):
         gallery = await gallery_repository.get_by_id(db, gallery_id)
         if not gallery:
             raise HTTPException(status_code=404, detail="Gallery not found")
-        return gallery
+
+        role = None
+        if user_id:
+            membership = await membership_repository.get_member(db, gallery_id, user_id)
+            role = membership.role if membership else None
+
+        return {
+            'id': gallery.id,
+            'title': gallery.title,
+            'created_at': gallery.created_at,
+            'role': role,
+        }
 
     async def create_gallery(self, db: AsyncSession, dto: CreateGalleryDto, user_id: str):
         gallery = await gallery_repository.create(db, dto)
@@ -28,7 +43,17 @@ class GalleryService:
         limit: int,
         options: GetGalleriesQueryDto,
     ):
-        return await gallery_repository.get_all_for_user(db, user_id, page, limit, options)
+        data, total = await gallery_repository.get_all_for_user(db, user_id, page, limit, options)
+        total_pages = math.ceil(total / limit) if limit else 0
+        return {
+            'data': data,
+            'meta': {
+                'total': total,
+                'page': page,
+                'limit': limit,
+                'total_pages': total_pages,
+            },
+        }
 
     async def update_gallery(self, db: AsyncSession, gallery_id: str, dto: UpdateGalleryDto):
         gallery = await gallery_repository.get_by_id(db, gallery_id)
@@ -41,6 +66,6 @@ class GalleryService:
         if not gallery:
             raise HTTPException(status_code=404, detail="Gallery not found")
         await gallery_repository.delete(db, gallery)
-        
-        
+
+
 gallery_service = GalleryService()

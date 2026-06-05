@@ -8,7 +8,7 @@ from app.core.helpers.security import (
     verify_password,
 )
 from app.core.redis import redis_service
-from app.repositories.user import user_repository
+from app.repositories.user_rep import user_repository
 from app.schemas.user_schema import LoginDto, RegisterDto
 
 

@@ -8,20 +8,29 @@ from app.core.deps.auth_dep import get_current_user
 from app.core.deps.role_check_dep import authorization
 from app.models.membership import UserRole
 from app.models.user import User
-from app.schemas.gallery_schema import CreateGalleryDto, GetGalleriesQueryDto, UpdateGalleryDto
-from app.services.gallery import gallery_service
+from app.schemas.gallery_schema import (
+    CreateGalleryDto,
+    GalleriesListResponse,
+    GalleryDetailResponse,
+    GalleryResponse,
+    GetGalleriesQueryDto,
+    UpdateGalleryDto,
+)
+from app.services.gallery_serv import gallery_service
 
 router = APIRouter(prefix="/gallery", tags=["gallery"])
 
-@router.get("/{gallery_id}")
+
+@router.get("/{gallery_id}", response_model=GalleryDetailResponse)
 async def get_gallery(
     gallery_id: str,
     db: Annotated[AsyncSession, Depends(get_db)],
-    _: Annotated[User, Depends(authorization(UserRole.REGULAR, UserRole.ADMIN, UserRole.OWNER))],
+    current_user: Annotated[User, Depends(authorization(UserRole.REGULAR, UserRole.ADMIN, UserRole.OWNER))],
 ):
-    return await gallery_service.get_gallery_by_id(db, gallery_id)
+    return await gallery_service.get_gallery_by_id(db, gallery_id, current_user.id)
 
-@router.post("/")
+
+@router.post("/", response_model=GalleryResponse)
 async def create_gallery(
     dto: CreateGalleryDto,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -29,7 +38,8 @@ async def create_gallery(
 ):
     return await gallery_service.create_gallery(db, dto, current_user.id)
 
-@router.get("/")
+
+@router.get("/", response_model=GalleriesListResponse)
 async def get_all_galleries(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(authorization())],
@@ -39,7 +49,8 @@ async def get_all_galleries(
 ):
     return await gallery_service.get_all_galleries(db, current_user.id, page, limit, options)
 
-@router.put("/{gallery_id}")
+
+@router.put("/{gallery_id}", response_model=GalleryResponse)
 async def update_gallery(
     gallery_id: str,
     dto: UpdateGalleryDto,
@@ -48,6 +59,7 @@ async def update_gallery(
 ):
     return await gallery_service.update_gallery(db, gallery_id, dto)
 
+
 @router.delete("/{gallery_id}")
 async def delete_gallery(
     gallery_id: str,
@@ -55,3 +67,4 @@ async def delete_gallery(
     _: Annotated[User, Depends(authorization(UserRole.OWNER))],
 ):
     await gallery_service.delete_gallery(db, gallery_id)
+    return True

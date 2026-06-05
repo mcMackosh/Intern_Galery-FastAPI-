@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.helpers.security import decode_token
 from app.models.user import User
-from app.repositories.user import user_repository
+from app.repositories.user_rep import user_repository
 
 security = HTTPBearer()
 

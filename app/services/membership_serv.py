@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.membership import UserRole
 from app.models.user import User
-from app.repositories.membership import membership_repository
+from app.repositories.membership_rep import membership_repository
 
 class MembershipService:
 
@@ -16,7 +16,17 @@ class MembershipService:
         return current_membership.role
 
     async def get_members(self, db: AsyncSession, gallery_id: str):
-        return await membership_repository.get_members(db, gallery_id)
+        memberships = await membership_repository.get_members(db, gallery_id)
+        return [
+            {
+                'id': m.user.id,
+                'first_name': m.user.first_name,
+                'last_name': m.user.last_name,
+                'email': m.user.email,
+                'role': m.role,
+            }
+            for m in memberships
+        ]
 
     async def create_or_update(
         self,
